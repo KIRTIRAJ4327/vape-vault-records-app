@@ -1,7 +1,7 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Product, CartItem, Purchase } from '../types';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 interface CartContextType {
   cart: CartItem[];
@@ -11,9 +11,10 @@ interface CartContextType {
   increaseQuantity: (productId: string) => void;
   decreaseQuantity: (productId: string) => void;
   cartTotal: number;
-  savePurchase: (customerName: string, storeName?: string) => void;
+  savePurchase: (customerName: string, storeName?: string) => Promise<void>;
   purchases: Purchase[];
   getPurchasesByCustomer: (customerName: string) => Purchase[];
+  loadPurchases: () => Promise<void>;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -23,12 +24,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [purchases, setPurchases] = useState<Purchase[]>([]);
   const [cartTotal, setCartTotal] = useState(0);
 
-  // Load purchases from localStorage on initial render
+  // Load purchases from Supabase on initial render
   useEffect(() => {
-    const savedPurchases = localStorage.getItem('purchases');
-    if (savedPurchases) {
-      setPurchases(JSON.parse(savedPurchases));
-    }
+    loadPurchases();
   }, []);
 
   // Calculate cart total whenever cart changes
@@ -39,10 +37,33 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setCartTotal(Number(total.toFixed(2)));
   }, [cart]);
 
-  // Save purchases to localStorage whenever they change
-  useEffect(() => {
-    localStorage.setItem('purchases', JSON.stringify(purchases));
-  }, [purchases]);
+  const loadPurchases = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('purchases')
+        .select('*')
+        .order('date', { ascending: false });
+
+      if (error) {
+        console.error('Error loading purchases:', error);
+        return;
+      }
+
+      // Transform database records to Purchase objects
+      const formattedPurchases: Purchase[] = data.map(item => ({
+        id: item.id,
+        customerName: item.customer_name,
+        storeName: item.store_name || undefined,
+        date: item.date,
+        products: item.products,
+        total: Number(item.total)
+      }));
+
+      setPurchases(formattedPurchases);
+    } catch (error) {
+      console.error('Error loading purchases:', error);
+    }
+  };
 
   const addToCart = (product: Product) => {
     setCart(prevCart => {
@@ -90,7 +111,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     );
   };
 
-  const savePurchase = (customerName: string, storeName?: string) => {
+  const savePurchase = async (customerName: string, storeName?: string) => {
     if (cart.length === 0) {
       toast.error('Cart is empty');
       return;
@@ -101,18 +122,43 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return;
     }
 
-    const newPurchase: Purchase = {
-      id: Date.now().toString(),
-      customerName,
-      date: new Date().toISOString(),
-      products: [...cart],
-      total: cartTotal,
-      storeName: storeName?.trim() || undefined
-    };
+    try {
+      // Create new purchase object
+      const newPurchase: Purchase = {
+        id: crypto.randomUUID(),
+        customerName,
+        date: new Date().toISOString(),
+        products: [...cart],
+        total: cartTotal,
+        storeName: storeName?.trim() || undefined
+      };
 
-    setPurchases(prevPurchases => [...prevPurchases, newPurchase]);
-    clearCart();
-    toast.success(`Purchase saved for ${customerName}`);
+      // Save to Supabase
+      const { error } = await supabase
+        .from('purchases')
+        .insert({
+          id: newPurchase.id,
+          customer_name: newPurchase.customerName,
+          store_name: newPurchase.storeName,
+          date: newPurchase.date,
+          products: newPurchase.products,
+          total: newPurchase.total
+        });
+
+      if (error) {
+        console.error('Error saving purchase:', error);
+        toast.error('Failed to save purchase. Please try again.');
+        return;
+      }
+
+      // Update local state
+      setPurchases(prevPurchases => [newPurchase, ...prevPurchases]);
+      clearCart();
+      toast.success(`Purchase saved for ${customerName}`);
+    } catch (error) {
+      console.error('Error saving purchase:', error);
+      toast.error('Failed to save purchase. Please try again.');
+    }
   };
 
   const getPurchasesByCustomer = (customerName: string) => {
@@ -133,7 +179,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       cartTotal,
       savePurchase,
       purchases,
-      getPurchasesByCustomer
+      getPurchasesByCustomer,
+      loadPurchases
     }}>
       {children}
     </CartContext.Provider>

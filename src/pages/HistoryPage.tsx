@@ -1,14 +1,15 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import { useCart } from '../context/CartContext';
-import { Calendar, Search, ChevronDown, ChevronUp, Package } from 'lucide-react';
+import { Calendar, Search, ChevronDown, ChevronUp, Package, RefreshCw } from 'lucide-react';
 import { format } from 'date-fns';
 
 const HistoryPage = () => {
-  const { purchases, getPurchasesByCustomer } = useCart();
+  const { purchases, getPurchasesByCustomer, loadPurchases } = useCart();
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedPurchase, setExpandedPurchase] = useState<string | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   
   const filteredPurchases = searchQuery
     ? getPurchasesByCustomer(searchQuery)
@@ -25,11 +26,36 @@ const HistoryPage = () => {
       return dateString;
     }
   };
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      await loadPurchases();
+    } catch (error) {
+      console.error('Error refreshing purchase history:', error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+  
+  // Refresh data when page loads
+  useEffect(() => {
+    loadPurchases();
+  }, [loadPurchases]);
   
   return (
     <Layout>
       <div className="space-y-6 pb-24">
-        <h1 className="text-2xl font-semibold mb-4">Purchase History</h1>
+        <div className="flex justify-between items-center mb-4">
+          <h1 className="text-2xl font-semibold">Purchase History</h1>
+          <button 
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className="p-2 text-vape-purple hover:bg-vape-light-purple rounded-full transition-colors"
+          >
+            <RefreshCw className={`h-5 w-5 ${isRefreshing ? 'animate-spin' : ''}`} />
+          </button>
+        </div>
         
         {/* Search */}
         <div className="relative">

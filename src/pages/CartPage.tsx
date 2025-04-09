@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import Layout from '../components/Layout';
 import { useCart } from '../context/CartContext';
-import { MinusCircle, PlusCircle, Trash2, ShoppingBag, X } from 'lucide-react';
+import { MinusCircle, PlusCircle, Trash2, ShoppingBag, X, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const CartPage = () => {
@@ -10,12 +10,20 @@ const CartPage = () => {
   const [customerName, setCustomerName] = useState('');
   const [storeName, setStoreName] = useState('');
   const [showSaveModal, setShowSaveModal] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   
-  const handleSavePurchase = () => {
-    savePurchase(customerName, storeName);
-    setShowSaveModal(false);
-    setCustomerName('');
-    setStoreName('');
+  const handleSavePurchase = async () => {
+    setIsSaving(true);
+    try {
+      await savePurchase(customerName, storeName);
+      setShowSaveModal(false);
+      setCustomerName('');
+      setStoreName('');
+    } catch (error) {
+      console.error('Error saving purchase:', error);
+    } finally {
+      setIsSaving(false);
+    }
   };
   
   return (
@@ -130,7 +138,11 @@ const CartPage = () => {
           <div className="bg-white rounded-lg shadow-lg max-w-md w-full p-6 animate-fade-in">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-medium">Save Purchase</h3>
-              <button onClick={() => setShowSaveModal(false)} className="text-vape-gray hover:text-vape-dark">
+              <button 
+                onClick={() => setShowSaveModal(false)} 
+                disabled={isSaving} 
+                className="text-vape-gray hover:text-vape-dark"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -147,6 +159,7 @@ const CartPage = () => {
                   onChange={(e) => setCustomerName(e.target.value)}
                   placeholder="Enter customer name"
                   className="w-full p-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-vape-purple focus:border-vape-purple"
+                  disabled={isSaving}
                   required
                 />
               </div>
@@ -162,6 +175,7 @@ const CartPage = () => {
                   onChange={(e) => setStoreName(e.target.value)}
                   placeholder="Enter store name"
                   className="w-full p-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-vape-purple focus:border-vape-purple"
+                  disabled={isSaving}
                 />
               </div>
               
@@ -179,20 +193,22 @@ const CartPage = () => {
               <div className="flex justify-end gap-3 pt-2">
                 <button
                   onClick={() => setShowSaveModal(false)}
-                  className="px-4 py-2 rounded-md border border-gray-300 text-vape-gray font-medium hover:bg-gray-50"
+                  disabled={isSaving}
+                  className="px-4 py-2 rounded-md border border-gray-300 text-vape-gray font-medium hover:bg-gray-50 disabled:opacity-50"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleSavePurchase}
-                  disabled={!customerName.trim()}
-                  className={`px-4 py-2 rounded-md font-medium ${
-                    !customerName.trim()
+                  disabled={!customerName.trim() || isSaving}
+                  className={`px-4 py-2 rounded-md font-medium flex items-center ${
+                    !customerName.trim() || isSaving
                       ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
                       : 'bg-vape-purple text-white hover:bg-vape-purple/90'
                   }`}
                 >
-                  Save Purchase
+                  {isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                  {isSaving ? 'Saving...' : 'Save Purchase'}
                 </button>
               </div>
             </div>
