@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # dependencies
 /node_modules
 /.pnp
@@ -31,6 +32,16 @@ yarn-error.log*
 # Logs
 logs
 *.log
+=======
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+>>>>>>> 18acacef7d65093d59a5d56ac5cb144dbe832351
 
 node_modules
 dist
