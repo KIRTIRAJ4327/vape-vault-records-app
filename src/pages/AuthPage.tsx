@@ -1,16 +1,14 @@
 
 import React, { useState } from "react";
-import { Navigate } from "react-router-dom";
-import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { toast } from "@/hooks/use-toast";
 
 // Define login schema
 const loginSchema = z.object({
@@ -32,7 +30,6 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 type SignupFormValues = z.infer<typeof signupSchema>;
 
 const AuthPage: React.FC = () => {
-  const { user, loading, signIn, signUp } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   // Login form
@@ -57,7 +54,12 @@ const AuthPage: React.FC = () => {
   const handleLogin = async (values: LoginFormValues) => {
     setIsSubmitting(true);
     try {
-      await signIn(values.email, values.password);
+      // Mock login functionality for now
+      console.log("Login values:", values);
+      toast({
+        title: "Login Disabled",
+        description: "Authentication is currently disabled in this version.",
+      });
     } catch (error) {
       console.error("Login error:", error);
     } finally {
@@ -68,18 +70,18 @@ const AuthPage: React.FC = () => {
   const handleSignup = async (values: SignupFormValues) => {
     setIsSubmitting(true);
     try {
-      await signUp(values.email, values.password);
+      // Mock signup functionality for now
+      console.log("Signup values:", values);
+      toast({
+        title: "Signup Disabled",
+        description: "Authentication is currently disabled in this version.",
+      });
     } catch (error) {
       console.error("Signup error:", error);
     } finally {
       setIsSubmitting(false);
     }
   };
-
-  // Redirect if user is already logged in
-  if (!loading && user) {
-    return <Navigate to="/" replace />;
-  }
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-purple-100 to-indigo-100">
