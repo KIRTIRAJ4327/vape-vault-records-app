@@ -29,18 +29,16 @@ const App = () => (
             <Toaster />
             <Sonner />
             <Routes>
-              {/* Public route - Auth page */}
+              {/* Public routes - all routes are now accessible without login */}
+              <Route path="/" element={<Index />} />
+              <Route path="/products" element={<Products />} />
+              <Route path="/category/:categoryId" element={<CategoryPage />} />
+              <Route path="/brand/:brandId" element={<BrandPage />} />
+              <Route path="/product/:productId" element={<ProductDetail />} />
+              <Route path="/search" element={<SearchPage />} />
+              <Route path="/cart" element={<CartPage />} />
+              <Route path="/history" element={<HistoryPage />} />
               <Route path="/auth" element={<AuthPage />} />
-              
-              {/* Protected routes */}
-              <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
-              <Route path="/products" element={<ProtectedRoute><Products /></ProtectedRoute>} />
-              <Route path="/category/:categoryId" element={<ProtectedRoute><CategoryPage /></ProtectedRoute>} />
-              <Route path="/brand/:brandId" element={<ProtectedRoute><BrandPage /></ProtectedRoute>} />
-              <Route path="/product/:productId" element={<ProtectedRoute><ProductDetail /></ProtectedRoute>} />
-              <Route path="/search" element={<ProtectedRoute><SearchPage /></ProtectedRoute>} />
-              <Route path="/cart" element={<ProtectedRoute><CartPage /></ProtectedRoute>} />
-              <Route path="/history" element={<ProtectedRoute><HistoryPage /></ProtectedRoute>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </CartProvider>

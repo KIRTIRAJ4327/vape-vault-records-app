@@ -1,6 +1,5 @@
 
 import React from "react";
-import { Navigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 
 interface ProtectedRouteProps {
@@ -8,6 +7,11 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
+  // Temporarily bypass authentication check
+  return <>{children}</>;
+  
+  // Original authentication code is kept but commented out for future use
+  /*
   const { user, loading } = useAuth();
 
   if (loading) {
@@ -25,6 +29,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   }
 
   return <>{children}</>;
+  */
 };
 
 export default ProtectedRoute;
