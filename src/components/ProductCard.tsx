@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Product } from '../types';
 import { useCart } from '../context/CartContext';
@@ -11,8 +10,10 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { addToCart } = useCart();
-  // Use a placeholder image if the actual image is not available
-  const imageUrl = product.image || 'https://placehold.co/600x400/d3e4fd/3B82F6?text=Product';
+  const [imageError, setImageError] = useState(false);
+  
+  // Use a placeholder image if the actual image is not available or fails to load
+  const imageUrl = !imageError ? product.image : 'https://placehold.co/600x400/d3e4fd/3B82F6?text=Product';
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -30,10 +31,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           src={imageUrl} 
           alt={product.name} 
           className="max-h-full max-w-full object-contain"
-          onError={(e) => {
-            const target = e.target as HTMLImageElement;
-            target.src = 'https://placehold.co/600x400/d3e4fd/3B82F6?text=Product';
-          }}
+          onError={() => setImageError(true)}
+          loading="lazy"
         />
       </div>
       <div className="p-4">

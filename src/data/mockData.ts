@@ -4,19 +4,19 @@ export const categories: Category[] = [
   {
     id: 'nicotine-pouches',
     name: 'Nicotine Pouches',
-    image: '/images/nicotine-pouches.png',
+    image: '/images/categories/nicotine-pouches.png',
     description: 'Tobacco-free nicotine pouches in various flavors and strengths'
   },
   {
     id: '5-percent-vapes',
     name: '5% Vapes',
-    image: '/images/5-percent-vapes.png',
+    image: '/images/categories/5-percent-vapes.png',
     description: 'Disposable vapes with 5% nicotine strength'
   },
   {
     id: 'other-products',
     name: 'Other Products',
-    image: '/images/other-products.png',
+    image: '/images/categories/other-products.png',
     description: 'Accessories and other vape-related products'
   }
 ];
