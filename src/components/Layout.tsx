@@ -1,10 +1,8 @@
 
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Search, ShoppingCart, Home, Package, History, LogOut } from 'lucide-react';
+import { Search, ShoppingCart, Home, Package, History } from 'lucide-react';
 import { useCart } from '../context/CartContext';
-import { useAuth } from '../context/AuthContext';
-import { Button } from './ui/button';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -13,7 +11,6 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
   const { cart } = useCart();
-  const { signOut, user } = useAuth();
   
   const isActive = (path: string) => location.pathname === path;
 
@@ -30,18 +27,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             <Link to="/search" className="relative">
               <Search className="text-vape-purple w-6 h-6" />
             </Link>
-            
-            {user && (
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="flex items-center gap-1" 
-                onClick={() => signOut()}
-              >
-                <LogOut className="w-4 h-4" />
-                <span className="hidden md:inline">Sign Out</span>
-              </Button>
-            )}
           </div>
         </div>
       </header>
