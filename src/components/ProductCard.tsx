@@ -31,7 +31,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           src={imageUrl} 
           alt={product.name} 
           className="max-h-full max-w-full object-contain"
-          onError={() => setImageError(true)}
+          onError={() => {
+            console.log('Image failed to load:', imageUrl);
+            setImageError(true);
+          }}
           loading="lazy"
         />
       </div>
