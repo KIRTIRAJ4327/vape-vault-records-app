@@ -11,7 +11,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({ category }) => {
   const [imageError, setImageError] = useState(false);
   
   // Use a placeholder image if the actual image is not available or fails to load
-  const imageUrl = !imageError ? `/categories/${category.image}` : 'https://placehold.co/600x400/e5deff/8B5CF6?text=Category';
+  const imageUrl = !imageError ? category.image : 'https://placehold.co/600x400/e5deff/8B5CF6?text=Category';
 
   return (
     <Link 
@@ -23,7 +23,10 @@ const CategoryCard: React.FC<CategoryCardProps> = ({ category }) => {
           src={imageUrl} 
           alt={category.name} 
           className="w-full h-full object-cover object-center"
-          onError={() => setImageError(true)}
+          onError={() => {
+            console.log('Category image failed to load:', imageUrl);
+            setImageError(true);
+          }}
           loading="lazy"
         />
       </div>
